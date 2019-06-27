@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,7 +78,7 @@ public class TodoControllerTest {
         when(todoRepository.findById(anyLong())).thenReturn(Optional.of(mockTodo));
 
         try {
-            mockMvc.perform(get("/todos/{todo-id}", 11L))
+            mockMvc.perform(get("/todos/{todo-id}", anyLong()))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(
@@ -96,7 +95,7 @@ public class TodoControllerTest {
     public void should_return_404_when_item_no_exist() {
         when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
         try {
-            mockMvc.perform(get("/todos/{todo-id}", 11L))
+            mockMvc.perform(get("/todos/{todo-id}", anyLong()))
                     .andDo(print())
                     .andExpect(status().isNotFound());
         } catch (Exception e) {
@@ -127,6 +126,39 @@ public class TodoControllerTest {
                             content().json(
                                     objectMapper.writeValueAsString(new ResourceWithUrl(newTodo))
                             )
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_200_when_delete_one_item() {
+
+        Todo mockTodo = new Todo(1, "abc", true, 1);
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.of(mockTodo));
+
+        try {
+            mockMvc.perform(delete("/todos/{todo-id}", anyLong()))
+                    .andDo(print())
+                    .andExpect(
+                            status().isOk()
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_404_when_delete_one_item_not_found() {
+
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        try {
+            mockMvc.perform(delete("/todos/{todo-id}", anyLong()))
+                    .andDo(print())
+                    .andExpect(
+                            status().isNotFound()
                     );
         } catch (Exception e) {
             e.printStackTrace();
