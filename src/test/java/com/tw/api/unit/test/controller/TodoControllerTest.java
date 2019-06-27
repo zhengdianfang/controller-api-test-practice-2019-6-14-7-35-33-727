@@ -150,7 +150,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void should_return_404_when_delete_one_item_not_found() {
+    public void should_return_404_when_delete_one_nonexistent_item() {
 
         when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -160,6 +160,47 @@ public class TodoControllerTest {
                     .andExpect(
                             status().isNotFound()
                     );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_404_when_update_one_nonexistent_item() {
+        Todo mockTodo = new Todo(1, "abc", true, 1);
+
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        try {
+            mockMvc.perform(patch("/todos/{todo-id}", anyLong())
+                    .content(objectMapper.writeValueAsString(mockTodo))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(
+                    status().isNotFound()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_updated_item_when_update_one__item() {
+        Todo mockNewTodo = new Todo(1, "abc", true, 1);
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.of(mockNewTodo));
+        try {
+            mockMvc.perform(patch("/todos/{todo-id}", anyLong())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(mockNewTodo))
+            )
+            .andDo(print())
+            .andExpect(
+                    status().isOk()
+            )
+            .andExpect(
+                    content().json(objectMapper.writeValueAsString(new ResourceWithUrl(mockNewTodo)))
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
