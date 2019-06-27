@@ -26,8 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ShowControllerTest {
 
 
-    @Autowired
-    private ShowController showController;
 
     @Autowired
     private MockMvc mvc;
@@ -35,10 +33,6 @@ public class ShowControllerTest {
     @MockBean
     private ShowService showService;
 
-    @Test
-    public void loadContext() {
-        Assert.assertNotNull(showController);
-    }
 
     @Test
     public void getAll() throws Exception {
