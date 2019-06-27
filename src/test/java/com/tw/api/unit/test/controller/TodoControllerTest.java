@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,6 +99,35 @@ public class TodoControllerTest {
             mockMvc.perform(get("/todos/{todo-id}", 11L))
                     .andDo(print())
                     .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_201_when_create_new_item() {
+        List<Todo> mockTodoList = Arrays.asList(
+                new Todo(1, "abc", true, 1),
+                new Todo(2, "efg", true, 2)
+        );
+
+
+        Todo newTodo = new Todo(3, "hij", false, 3);
+
+        when(todoRepository.getAll()).thenReturn(mockTodoList);
+
+        try {
+            mockMvc.perform(
+                    post("/todos")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(newTodo))
+            ).andDo(print())
+                    .andExpect(status().isCreated())
+                    .andExpect(
+                            content().json(
+                                    objectMapper.writeValueAsString(new ResourceWithUrl(newTodo))
+                            )
+                    );
         } catch (Exception e) {
             e.printStackTrace();
         }
