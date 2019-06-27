@@ -1,20 +1,16 @@
 package com.tw.api.unit.test.services;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@ExtendWith(MockitoExtension.class)
-@DisplayName("A example to test showservice with mock strategy")
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringRunner.class)
 public class ShowServiceTests {
 	private static final String MOCK_OUTPUT = "Mocked show label";
 
@@ -24,16 +20,13 @@ public class ShowServiceTests {
 	@InjectMocks
 	private ShowService showService;
 
-	@BeforeEach
-	void setMockOutput() {
+	public void setUp() throws Exception {
 		when(textService.getText()).thenReturn(MOCK_OUTPUT);
 	}
 
 	@Test
-	@DisplayName("Mock the output of the text service using mockito")
 	public void contextLoads() {
-
-		assertEquals(showService.getShowLable(), MOCK_OUTPUT);
+		Assert.assertEquals(showService.getShowLable(), MOCK_OUTPUT);
 
 	}
 
