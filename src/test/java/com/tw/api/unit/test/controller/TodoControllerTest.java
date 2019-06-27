@@ -8,8 +8,6 @@ import com.tw.api.unit.test.domain.todo.TodoRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,8 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -68,5 +68,37 @@ public class TodoControllerTest {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void should_return_item_when_execute_getTodo() {
+        Todo mockTodo = new Todo(1, "abc", true, 1);
+
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.of(mockTodo));
+
+        try {
+            mockMvc.perform(get("/todos/{todo-id}", 11L))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(
+                            content().json(objectMapper.writeValueAsString(
+                                    new ResourceWithUrl(mockTodo)
+                            ))
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void should_return_404_when_item_no_exist() {
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
+        try {
+            mockMvc.perform(get("/todos/{todo-id}", 11L))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
